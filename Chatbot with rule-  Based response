@@ -1,0 +1,31 @@
+def chatbot_response(user_input):
+    # Convert user input to lowercase for case insensitive matching
+    user_input = user_input.lower()
+
+    # Define some simple rules and responses
+    responses = {
+        "hi": "Hello! How can I help you?",
+        "how are you": "I'm good, thank you!",
+        "bye": "Goodbye! Have a nice day!",
+        "thank you": "You're welcome!",
+        "default": "I'm sorry, I didn't understand that."
+    }
+
+    # Check user input against predefined rules
+    if user_input in responses:
+        return responses[user_input]
+    elif "help" in user_input:
+        return "Sure, I can help you. What do you need assistance with?"
+    else:
+        return responses["default"]
+
+# Example usage
+print("Chatbot: Hello! How can I help you today?")
+while True:
+    user_input = input("User: ").strip()
+    if user_input.lower() == 'exit':
+        print("Chatbot: Goodbye!")
+        break
+    else:
+        response = chatbot_response(user_input)
+        print("Chatbot:", response)
