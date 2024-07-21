@@ -1,0 +1,25 @@
+def main():
+    game = TicTacToe()
+    while not game.game_over():
+        game.print_board()
+        if game.current_player == 'X':
+            human_move = int(input("Enter your move (0-8): "))
+            while human_move not in game.available_moves():
+                print("Invalid move. Please choose an empty spot.")
+                human_move = int(input("Enter your move (0-8): "))
+            game.make_move(human_move)
+        else:
+            ai_move = get_best_move(game)
+            game.make_move(ai_move)
+            print(f"AI plays move: {ai_move}")
+    
+    game.print_board()
+    if game.is_winner('X'):
+        print("Congratulations! You win!")
+    elif game.is_winner('O'):
+        print("AI wins! Better luck next time.")
+    else:
+        print("It's a draw!")
+
+if __name__ == "__main__":
+    main()
