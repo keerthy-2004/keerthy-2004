@@ -1,0 +1,45 @@
+pip install pandas scikit-learn
+import pandas as pd
+
+# Sample data
+data = {
+    'UserID': [1, 1, 2, 2, 3, 3, 4, 4],
+    'ItemID': [101, 102, 101, 103, 102, 103, 101, 104],
+    'Rating': [5, 3, 4, 2, 4, 5, 2, 4]
+}
+
+df = pd.DataFrame(data)
+user_item_matrix = df.pivot_table(index='UserID', columns='ItemID', values='Rating')
+from sklearn.metrics.pairwise import cosine_similarity
+import numpy as np
+
+# Fill NaN values with 0 (users have not rated the item yet)
+user_item_matrix = user_item_matrix.fillna(0)
+
+# Compute similarity matrix
+user_similarity = cosine_similarity(user_item_matrix)
+user_similarity_df = pd.DataFrame(user_similarity, index=user_item_matrix.index, columns=user_item_matrix.index)
+def recommend_items(user_id, user_item_matrix, user_similarity_df, top_n=3):
+    similar_users = user_similarity_df[user_id].sort_values(ascending=False).index.tolist()
+    
+    # Remove the target user from the list of similar users
+    similar_users.remove(user_id)
+    
+    # Get the items rated by similar users
+    similar_users_ratings = user_item_matrix.loc[similar_users]
+    
+    # Compute the average ratings for items
+    item_ratings = similar_users_ratings.mean(axis=0)
+    
+    # Filter out items that the target user has already rated
+    user_rated_items = user_item_matrix.loc[user_id]
+    items_to_recommend = item_ratings[~user_rated_items.notna()]
+    
+    # Sort by rating and return top N items
+    recommendations = items_to_recommend.sort_values(ascending=False).head(top_n)
+    
+    return recommendations
+
+# Get recommendations for user 1
+recommendations = recommend_items(user_id=1, user_item_matrix=user_item_matrix, user_similarity_df=user_similarity_df)
+print(recommendations)
