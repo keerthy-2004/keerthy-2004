@@ -1,0 +1,83 @@
+pip install opencv-python dlib face_recognition
+import cv2
+
+# Load pre-trained Haar cascade model for face detection
+face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
+
+# Load an image
+image = cv2.imread('path/to/your/image.jpg')
+gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+# Detect faces
+faces = face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5, minSize=(30, 30))
+
+# Draw rectangles around faces
+for (x, y, w, h) in faces:
+    cv2.rectangle(image, (x, y), (x + w, y + h), (255, 0, 0), 2)
+
+# Display the result
+cv2.imshow('Face Detection', image)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+import face_recognition
+import cv2
+
+# Load known faces
+known_image = face_recognition.load_image_file('path/to/your/known_person.jpg')
+known_encoding = face_recognition.face_encodings(known_image)[0]
+
+# Load an unknown image
+unknown_image = face_recognition.load_image_file('path/to/your/unknown_image.jpg')
+unknown_encodings = face_recognition.face_encodings(unknown_image)
+
+# Compare faces
+for unknown_encoding in unknown_encodings:
+    results = face_recognition.compare_faces([known_encoding], unknown_encoding)
+
+    if results[0]:
+        print("Match found!")
+    else:
+        print("No match.")
+import cv2
+import face_recognition
+
+# Initialize the face cascade
+face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
+
+# Load known faces
+known_image = face_recognition.load_image_file('path/to/your/known_person.jpg')
+known_encoding = face_recognition.face_encodings(known_image)[0]
+
+# Start video capture
+video_capture = cv2.VideoCapture(0)
+
+while True:
+    ret, frame = video_capture.read()
+    if not ret:
+        break
+    
+    # Convert the image to grayscale for face detection
+    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    faces = face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5, minSize=(30, 30))
+
+    # Process each detected face
+    for (x, y, w, h) in faces:
+        face_image = frame[y:y + h, x:x + w]
+        face_encoding = face_recognition.face_encodings(face_image)
+
+        if face_encoding:
+            results = face_recognition.compare_faces([known_encoding], face_encoding[0])
+            label = "Match" if results[0] else "No Match"
+        else:
+            label = "No Face Detected"
+        
+        cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 2)
+        cv2.putText(frame, label, (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (255, 0, 0), 2)
+    
+    cv2.imshow('Video', frame)
+
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
+
+video_capture.release()
+cv2.destroyAllWindows()
